@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tablero Personal</title>
+  <style>
+    :root{
+      --bg:#f7f7f9; /* claro, similar a base */
+      --panel:#ffffff;
+      --ink:#1b1f24;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#1f6feb; /* azul */
+      --accent:#f59e0b;  /* ámbar */
+      --ok:#22c55e;      /* verde */
+      --warn:#f97316;    /* naranja */
+      --bad:#ef4444;     /* rojo */
+      --tag:#0ea5e9;     /* celeste */
+      --badge:#111827;   /* header de tabla negro gris */
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial}
+    button, input, select, textarea{font:inherit}
+    /* Layout */
+    .container{max-width:1200px;margin:18px auto;padding:0 16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+    .header{position:sticky;top:0;z-index:10;background:var(--bg);box-shadow:0 2px 0 rgba(0,0,0,.02);padding:8px 0 12px}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .toolbar .spacer{flex:1}
+    .kpis{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fbfbfd}
+    .kpis b{font-size:15px}
+    .kpis .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+
+    .btn{background:#fff;border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+    .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .btn.neutral{background:#f3f4f6}
+    .btn:active{transform:translateY(1px)}
+    .input, .select{border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:#fff}
+
+    /* Tabla */
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    thead th{position:sticky;top:66px;background:var(--badge);color:#fff;font-weight:600;letter-spacing:.02em;text-align:left;font-size:12px;padding:10px;border-top-left-radius:8px}
+    thead th+th{border-top-left-radius:0}
+    thead th:last-child{border-top-right-radius:8px}
+    tbody td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;background:#fff}
+    tbody tr:hover td{background:#f9fafb}
+
+    /* Estado tintes */
+    .row--trabajando td{background:#fff7ed} /* naranja claro */
+    .row--rezagado td{background:#fef2f2}
+    .row--programado td{background:#eff6ff}
+    .row--cerrado td{background:#f0fdf4}
+
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:600}
+    .badge.trabajando{background:#ffedd5;color:#9a3412}
+    .badge.rezagado{background:#fee2e2;color:#991b1b}
+    .badge.programado{background:#dbeafe;color:#1e40af}
+    .badge.empezado{background:#e5e7eb;color:#111827}
+    .badge.cerrado{background:#dcfce7;color:#166534}
+
+    .menu-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px}
+    .menu{position:absolute;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 30px rgba(0,0,0,.08);padding:6px;display:none;min-width:190px}
+    .menu.open{display:block}
+    .menu button{display:block;width:100%;text-align:left;background:transparent;border:0;padding:8px;border-radius:6px}
+    .menu button:hover{background:#f3f4f6}
+
+    .status-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+    .st-trabajando{background:var(--warn)}
+    .st-programado{background:var(--primary)}
+    .st-rezagado{background:var(--bad)}
+    .st-empezado{background:#6b7280}
+    .st-cerrado{background:var(--ok)}
+
+    .muted{color:var(--muted)}
+    .right{text-align:right}
+
+    /* Modales */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(17,24,39,.45);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal{max-width:820px;width:100%;background:#fff;border-radius:12px;border:1px solid var(--line);box-shadow:0 20px 80px rgba(0,0,0,.25)}
+    .modal header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+    .modal .body{padding:16px 18px;max-height:70vh;overflow:auto}
+    .modal footer{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+    .modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .modal label{font-size:12px;color:var(--muted)}
+    .modal input[type="text"], .modal input[type="date"], .modal textarea, .modal select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+    .modal textarea{min-height:90px}
+    .modal .row{display:flex;gap:12px;align-items:center}
+    .danger{background:var(--bad);color:#fff}
+    .success{background:var(--ok);color:#064e3b}
+
+    /* Chips */
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;background:#eef6ff;border:1px solid #dbeafe;color:#1e40af;font-size:12px}
+
+    .small{font-size:12px}
+
+    /* Footer */
+    .footer{margin:16px 0;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="toolbar">
+        <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
+        <button class="btn" id="btnExport">Exportar JSON</button>
+        <input class="input" id="q" placeholder="Buscar… (título/desc/etiquetas)" style="width:260px"/>
+        <select class="select" id="fProyecto"></select>
+        <select class="select" id="fObjetivo"></select>
+        <select class="select" id="fTipo"></select>
+        <input class="input" id="fFecha" type="date"/>
+        <button class="btn neutral" id="btnHoy">Hoy</button>
+        <div class="spacer"></div>
+        <div class="kpis">
+          <span class="dot st-programado"></span><span class="small">Prog:</span><b id="kProg">0</b>
+          <span class="dot st-trabajando" style="margin-left:10px"></span><span class="small">Trab:</span><b id="kTrab">0</b>
+          <span class="dot st-rezagado" style="margin-left:10px"></span><span class="small">Rezag:</span><b id="kRez">0</b>
+          <span class="dot st-cerrado" style="margin-left:10px"></span><span class="small">Cerr:</span><b id="kCer">0</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>TÍTULO</th>
+            <th style="width:120px">ESTADO</th>
+            <th style="width:130px">H. COMPROMISO</th>
+            <th style="width:110px">T. TOTAL</th>
+            <th style="width:110px">T. HOY</th>
+            <th style="width:120px">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer small">Local • v1 (HTML/CSS/JS). Sin backend. Persistencia en localStorage. Adjuntos guardados como DataURL (límite recomendado ≤ 1 MB por archivo).</div>
+  </div>
+
+  <!-- MODAL NUEVA / EDITAR -->
+  <div class="modal-backdrop" id="modalEditBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong id="modalTitle">Nueva tarea</strong>
+        <button class="btn" onclick="closeEdit()">✕</button>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label>Título</label>
+            <input id="mTitulo" type="text"/>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <div class="row">
+              <select id="mTipo"></select>
+              <button class="btn" onclick="ui.addCatalog('tipo')">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Proyecto</label>
+            <div class="row">
+              <select id="mProyecto"></select>
+              <button class="btn" onclick="ui.addCatalog('proyecto')">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Objetivo</label>
+            <div class="row">
+              <select id="mObjetivo"></select>
+              <button class="btn" onclick="ui.addCatalog('objetivo')">＋</button>
+            </div>
+          </div>
+          <div style="grid-column:1/3">
+            <label>Descripción</label>
+            <textarea id="mDescripcion" placeholder="Detalles, pasos, etc."></textarea>
+          </div>
+          <div>
+            <label>Programado para</label>
+            <input id="mProgramado" type="date"/>
+          </div>
+          <div>
+            <label>Fecha compromiso</label>
+            <input id="mCompromiso" type="date"/>
+          </div>
+          <div>
+            <label>Etiquetas (coma)</label>
+            <input id="mTags" type="text" placeholder="ej. QA, script, docs"/>
+          </div>
+          <div>
+            <label>Recurrencia</label>
+            <select id="mRecurrencia">
+              <option value="ninguna">Ninguna</option>
+              <option value="sabados">Todos los sábados</option>
+              <option value="fin_mes">Fin de mes</option>
+            </select>
+          </div>
+        </div>
+
+        <hr style="margin:16px 0;border:0;border-top:1px solid var(--line)"/>
+
+        <div>
+          <div class="row" style="justify-content:space-between">
+            <div>
+              <label>Adjuntar evidencia (requerido para cerrar)</label>
+              <input type="file" id="mFile"/>
+              <button class="btn" onclick="ui.attachSelected()">Adjuntar</button>
+            </div>
+            <div class="muted small">Tamaño aconsejado ≤ 1 MB por archivo</div>
+          </div>
+          <div id="mAdjuntos" class="small" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <footer>
+        <button class="btn danger" id="btnEliminar" onclick="actions.eliminar()" style="display:none">Eliminar</button>
+        <div class="spacer"></div>
+        <button class="btn" onclick="closeEdit()">Cancelar</button>
+        <button class="btn primary" onclick="actions.guardar()">Guardar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MENU flotante plantilla -->
+  <div class="menu" id="rowMenu">
+    <button onclick="actions.detalles()">Ver / Editar…</button>
+    <button onclick="actions.playPause()">▶️ Iniciar / Pausar</button>
+    <button onclick="actions.programarHoy()">Programar hoy</button>
+    <button onclick="actions.cerrar()">✅ Cerrar (requiere adjunto)</button>
+  </div>
+
+  <script>
+  // ====== Datos y almacenamiento (LocalStorage) ============================
+  const LS_KEY = 'wb_tasks_v1';
+  const LS_CAT = 'wb_catalogs_v1';
+
+  /** @type {Array<Task>} */
+  let tasks = [];
+  let catalogs = { tipos:["General"], proyectos:["Personal"], objetivos:["General"] };
+
+  function load(){
+    try{ tasks = JSON.parse(localStorage.getItem(LS_KEY)||'[]') }catch{ tasks=[] }
+    try{ catalogs = JSON.parse(localStorage.getItem(LS_CAT)||'null') || catalogs }catch{}
+  }
+  function save(){
+    localStorage.setItem(LS_KEY, JSON.stringify(tasks));
+    localStorage.setItem(LS_CAT, JSON.stringify(catalogs));
+  }
+
+  // ====== Utilidades de tiempo ============================================
+  const dayStart = (d)=> new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayEnd   = (d)=> new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23,59,59,999);
+  const fmtHM = (ms)=>{
+    if(!ms||ms<0) return '00:00';
+    const m = Math.floor(ms/60000), h = Math.floor(m/60), mm = (m%60).toString().padStart(2,'0');
+    return `${h.toString().padStart(2,'0')}:${mm}`
+  }
+  const overlapMs = (aStart, aEnd, bStart, bEnd)=>{
+    const s = Math.max(aStart, bStart), e = Math.min(aEnd, bEnd);
+    return Math.max(0, e - s);
+  }
+
+  // ====== Estado derivado ==================================================
+  function deriveState(t){
+    if(t.estado === 'CERRADO') return 'CERRADO';
+    const now = Date.now();
+    const running = !!t.timerStart;
+    if(running) return 'TRABAJANDO';
+    const spent = getTotalMs(t);
+    if(spent>0) return 'EMPEZADO';
+    if(t.fechaCompromiso){
+      const comp = new Date(t.fechaCompromiso);
+      const isPast = dayEnd(new Date()) > comp && (!t.programadoPara || new Date(t.programadoPara) <= dayEnd(new Date()));
+      if(isPast) return 'REZAGADO';
+    }
+    return 'PROGRAMADO';
+  }
+
+  function getTotalMs(t){
+    let sum = 0;
+    (t.sesiones||[]).forEach(s=>{
+      const end = s.end ?? Date.now();
+      sum += Math.max(0, end - s.start);
+    });
+    // si hay timerStart sin sesión abierta
+    if(t.timerStart && !(t.sesiones||[]).some(s=>!s.end)){
+      sum += Date.now() - t.timerStart;
+    }
+    return sum;
+  }
+
+  function getDayMs(t, day){
+    const S = +(dayStart(day));
+    const E = +(dayEnd(day));
+    let sum = 0;
+    (t.sesiones||[]).forEach(s=>{
+      const sEnd = s.end ?? Date.now();
+      sum += overlapMs(+s.start, +sEnd, S, E);
+    });
+    if(t.timerStart){
+      sum += overlapMs(+t.timerStart, Date.now(), S, E);
+    }
+    return sum;
+  }
+
+  // ====== UI / Filtros =====================================================
+  const tbody = document.getElementById('tbody');
+  const fProyecto = document.getElementById('fProyecto');
+  const fObjetivo = document.getElementById('fObjetivo');
+  const fTipo = document.getElementById('fTipo');
+  const fFecha = document.getElementById('fFecha');
+  const q = document.getElementById('q');
+
+  function setToday(){
+    const today = new Date();
+    fFecha.valueAsDate = today;
+  }
+
+  function fillSelect(sel, items, withAll=true){
+    sel.innerHTML = '';
+    if(withAll){ const opt = document.createElement('option'); opt.value=''; opt.textContent='(Todos)'; sel.appendChild(opt); }
+    items.forEach(x=>{ const o=document.createElement('option'); o.value=o.textContent=x; sel.appendChild(o); });
+  }
+
+  function refreshFilters(){
+    fillSelect(fProyecto, catalogs.proyectos);
+    fillSelect(fObjetivo, catalogs.objetivos);
+    fillSelect(fTipo, catalogs.tipos);
+  }
+
+  function render(){
+    const day = fFecha.value ? new Date(fFecha.value) : new Date();
+    const text = q.value.trim().toLowerCase();
+    const fp = fProyecto.value, fo = fObjetivo.value, ft = fTipo.value;
+
+    const filtered = tasks.filter(t=>{
+      if(fp && t.proyecto!==fp) return false;
+      if(fo && t.objetivo!==fo) return false;
+      if(ft && t.tipo!==ft) return false;
+      if(text){
+        const blob = `${t.titulo} ${t.descripcion||''} ${(t.tags||[]).join(',')}`.toLowerCase();
+        if(!blob.includes(text)) return false;
+      }
+      return true;
+    });
+
+    tbody.innerHTML = '';
+
+    let kProg=0,kTrab=0,kRez=0,kCer=0;
+
+    filtered
+      .sort((a,b)=>{
+        // Orden: rezagado > trabajando > programado > empezado > otros, luego compromiso
+        const rank = s=>({REZAGADO:0, TRABAJANDO:1, PROGRAMADO:2, EMPEZADO:3, CERRADO:9})[s] ?? 4;
+        const da = rank(deriveState(a)), db = rank(deriveState(b));
+        if(da!==db) return da-db;
+        const ca = a.fechaCompromiso? +new Date(a.fechaCompromiso): Number.MAX_SAFE_INTEGER;
+        const cb = b.fechaCompromiso? +new Date(b.fechaCompromiso): Number.MAX_SAFE_INTEGER;
+        return ca-cb;
+      })
+      .forEach((t,i)=>{
+        const st = deriveState(t);
+        if(st==='PROGRAMADO') kProg++;
+        if(st==='TRABAJANDO') kTrab++;
+        if(st==='REZAGADO') kRez++;
+        if(st==='CERRADO') kCer++;
+
+        const tr = document.createElement('tr');
+        tr.className = 'row--'+st.toLowerCase();
+        tr.innerHTML = `
+          <td class="right">${i+1}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="status-dot st-${st.toLowerCase()}"></span>
+              <div>
+                <div style="font-weight:600">${escapeHtml(t.titulo)}</div>
+                <div class="muted small">${escapeHtml(t.proyecto||'—')} · ${escapeHtml(t.objetivo||'—')} · <span class="chip">${escapeHtml(t.tipo||'General')}</span></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge ${st.toLowerCase()}">${st}</span></td>
+          <td>${t.fechaCompromiso? new Date(t.fechaCompromiso).toLocaleDateString(): '—'}</td>
+          <td>${fmtHM(getTotalMs(t))}</td>
+          <td>${fmtHM(getDayMs(t, day))}</td>
+          <td>
+            <div style="position:relative">
+              <button class="menu-btn" onclick="openMenu(event, '${t.id}')">⋮</button>
+            </div>
+          </td>
+        `;
+        // abrir detalles al hacer click en la fila (excepto botón menú)
+        tr.addEventListener('click', (ev)=>{
+          if(ev.target.closest('button')) return; // no abrir desde botón
+          openEdit(t.id);
+        });
+        tbody.appendChild(tr);
+      });
+
+    document.getElementById('kProg').textContent = kProg;
+    document.getElementById('kTrab').textContent = kTrab;
+    document.getElementById('kRez').textContent = kRez;
+    document.getElementById('kCer').textContent = kCer;
+  }
+
+  function escapeHtml(s){return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
+
+  // ====== Menú por fila ====================================================
+  const rowMenu = document.getElementById('rowMenu');
+  let currentMenuTaskId = null;
+
+  function openMenu(ev, id){
+    ev.stopPropagation();
+    currentMenuTaskId = id;
+    const btn = ev.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    rowMenu.style.top = (window.scrollY + rect.bottom + 6) + 'px';
+    rowMenu.style.left = (window.scrollX + rect.left - 120) + 'px';
+    rowMenu.classList.add('open');
+  }
+  document.addEventListener('click', ()=> rowMenu.classList.remove('open'));
+
+  const actions = {
+    detalles(){ openEdit(currentMenuTaskId); },
+    playPause(){ const t = getTask(currentMenuTaskId); if(!t) return; toggleTimer(t); save(); render(); },
+    programarHoy(){ const t=getTask(currentMenuTaskId); if(!t) return; t.programadoPara = new Date().toISOString().slice(0,10); save(); render(); },
+    cerrar(){ const t=getTask(currentMenuTaskId); if(!t) return; closeTask(t); },
+    eliminar(){ if(!editingId) return; const idx = tasks.findIndex(x=>x.id===editingId); if(idx>=0){ tasks.splice(idx,1); save(); closeEdit(); render(); } },
+    guardar(){ saveFromModal(); }
+  }
+
+  function getTask(id){ return tasks.find(t=>t.id===id); }
+
+  // ====== Timer ============================================================
+  function toggleTimer(t){
+    if(t.estado==='CERRADO') return alert('La tarea está cerrada.');
+    if(t.timerStart){
+      // Pausar: cierra sesión activa
+      t.sesiones = t.sesiones||[];
+      t.sesiones.push({ start: new Date(t.timerStart), end: new Date() });
+      t.timerStart = null;
+    }else{
+      t.timerStart = Date.now();
+    }
+  }
+
+  // ====== Cerrar con adjunto + recurrencia ================================
+  function closeTask(t){
+    if(!t.adjuntos || t.adjuntos.length===0){
+      return alert('Para cerrar necesitas al menos un archivo adjunto.');
+    }
+    if(t.timerStart){ toggleTimer(t); }
+    t.estado = 'CERRADO';
+    // recurrencia -> crear siguiente
+    if(t.recurrencia && t.recurrencia!=='ninguna'){
+      const next = JSON.parse(JSON.stringify(t));
+      next.id = crypto.randomUUID();
+      next.estado = 'PROGRAMADO';
+      next.sesiones = [];
+      next.timerStart = null;
+      next.adjuntos = [];
+      // calcular próxima fecha programado/compromiso
+      const base = t.programadoPara ? new Date(t.programadoPara) : new Date();
+      if(t.recurrencia==='sabados'){
+        const d = new Date(base);
+        d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); // próximo sábado
+        next.programadoPara = d.toISOString().slice(0,10);
+        if(t.fechaCompromiso) next.fechaCompromiso = next.programadoPara;
+      }else if(t.recurrencia==='fin_mes'){
+        const d = new Date(base.getFullYear(), base.getMonth()+1, 0); // fin del mes actual
+        const nextMonthEnd = new Date(base.getFullYear(), base.getMonth()+2, 0);
+        next.programadoPara = nextMonthEnd.toISOString().slice(0,10);
+        if(t.fechaCompromiso) next.fechaCompromiso = next.programadoPara;
+      }
+      tasks.push(next);
+    }
+    save(); render();
+  }
+
+  // ====== Modal de edición ================================================
+  const modalBg = document.getElementById('modalEditBg');
+  const mTitulo = document.getElementById('mTitulo');
+  const mDescripcion = document.getElementById('mDescripcion');
+  const mTipo = document.getElementById('mTipo');
+  const mProyecto = document.getElementById('mProyecto');
+  const mObjetivo = document.getElementById('mObjetivo');
+  const mProgramado = document.getElementById('mProgramado');
+  const mCompromiso = document.getElementById('mCompromiso');
+  const mTags = document.getElementById('mTags');
+  const mRecurrencia = document.getElementById('mRecurrencia');
+  const mFile = document.getElementById('mFile');
+  const mAdjuntos = document.getElementById('mAdjuntos');
+  const btnEliminar = document.getElementById('btnEliminar');
+  const modalTitle = document.getElementById('modalTitle');
+
+  let editingId = null;
+
+  function openEdit(id){
+    refreshFilters(); // también repuebla selects del modal
+    // llenar selects del modal
+    fillSelect(mTipo, catalogs.tipos, false);
+    fillSelect(mProyecto, catalogs.proyectos, false);
+    fillSelect(mObjetivo, catalogs.objetivos, false);
+
+    if(id){
+      const t = getTask(id); if(!t) return;
+      editingId = id;
+      modalTitle.textContent = 'Editar tarea';
+      btnEliminar.style.display = 'inline-flex';
+      mTitulo.value = t.titulo||'';
+      mDescripcion.value = t.descripcion||'';
+      mTipo.value = t.tipo||'General';
+      mProyecto.value = t.proyecto||'Personal';
+      mObjetivo.value = t.objetivo||'General';
+      mProgramado.value = t.programadoPara||'';
+      mCompromiso.value = t.fechaCompromiso||'';
+      mTags.value = (t.tags||[]).join(', ');
+      mRecurrencia.value = t.recurrencia||'ninguna';
+      renderAdjuntos(t);
+    }else{
+      editingId = null;
+      modalTitle.textContent = 'Nueva tarea';
+      btnEliminar.style.display = 'none';
+      mTitulo.value = mDescripcion.value = mTags.value = '';
+      mTipo.value = catalogs.tipos[0]||'General';
+      mProyecto.value = catalogs.proyectos[0]||'Personal';
+      mObjetivo.value = catalogs.objetivos[0]||'General';
+      mProgramado.value = mCompromiso.value = '';
+      mRecurrencia.value = 'ninguna';
+      mAdjuntos.innerHTML = '';
+    }
+    modalBg.style.display = 'flex';
+  }
+  function closeEdit(){ modalBg.style.display='none'; }
+
+  function renderAdjuntos(t){
+    mAdjuntos.innerHTML = '';
+    (t.adjuntos||[]).forEach((a,idx)=>{
+      const row = document.createElement('div');
+      row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='space-between'; row.style.gap='12px'; row.style.padding='6px 0';
+      row.innerHTML = `<div>📎 ${escapeHtml(a.name)} <span class="muted">(${Math.round((a.size||0)/1024)} KB)</span></div>`;
+      const del = document.createElement('button'); del.className='btn'; del.textContent='Quitar'; del.onclick=()=>{ t.adjuntos.splice(idx,1); save(); renderAdjuntos(t); render(); };
+      row.appendChild(del);
+      mAdjuntos.appendChild(row);
+    });
+  }
+
+  const ui = {
+    addCatalog(kind){
+      const name = prompt('Nuevo '+kind+':');
+      if(!name) return;
+      const list = kind==='tipo'? catalogs.tipos : (kind==='proyecto'? catalogs.proyectos : catalogs.objetivos);
+      if(!list.includes(name)) list.push(name);
+      save(); refreshFilters();
+      if(kind==='tipo') fillSelect(mTipo, catalogs.tipos, false);
+      if(kind==='proyecto') fillSelect(mProyecto, catalogs.proyectos, false);
+      if(kind==='objetivo') fillSelect(mObjetivo, catalogs.objetivos, false);
+    },
+    attachSelected(){
+      const file = mFile.files[0];
+      if(!file){ alert('Elige un archivo primero.'); return; }
+      if(file.size > 1024*1024*2){ // 2MB límite prudente
+        if(!confirm('El archivo pesa más de 2 MB. Guardarlo puede fallar en localStorage. ¿Continuar?')) return;
+      }
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const t = editingId? getTask(editingId) : (editingId=null, null);
+        if(!t){ alert('Guarda primero la tarea para adjuntar.'); return; }
+        t.adjuntos = t.adjuntos||[];
+        t.adjuntos.push({ name:file.name, type:file.type, size:file.size, dataUrl:reader.result });
+        save(); renderAdjuntos(t); render(); mFile.value='';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function saveFromModal(){
+    const data = {
+      titulo: mTitulo.value.trim(),
+      descripcion: mDescripcion.value.trim(),
+      tipo: mTipo.value,
+      proyecto: mProyecto.value,
+      objetivo: mObjetivo.value,
+      programadoPara: mProgramado.value || null,
+      fechaCompromiso: mCompromiso.value || null,
+      tags: mTags.value.split(',').map(s=>s.trim()).filter(Boolean),
+      recurrencia: mRecurrencia.value
+    };
+    if(!data.titulo) return alert('Título requerido.');
+
+    if(editingId){
+      const t = getTask(editingId); Object.assign(t, data); save();
+    }else{
+      const t = {
+        id: crypto.randomUUID(),
+        creadoEn: new Date().toISOString(),
+        estado: 'PROGRAMADO',
+        sesiones: [],
+        timerStart: null,
+        adjuntos: [],
+        ...data
+      };
+      tasks.unshift(t); save();
+    }
+    closeEdit(); render();
+  }
+
+  // ====== Export ===========================================================
+  document.getElementById('btnExport').addEventListener('click', ()=>{
+    const payload = { tasks, catalogs, exportedAt:new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tablero_personal.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // ====== Eventos de UI ====================================================
+  document.getElementById('btnNueva').addEventListener('click', ()=> openEdit(null));
+  document.getElementById('btnHoy').addEventListener('click', ()=> { setToday(); render(); });
+  [q,fProyecto,fObjetivo,fTipo,fFecha].forEach(el=> el.addEventListener('input', render));
+
+  // ====== Boot =============================================================
+  load();
+  setToday();
+  refreshFilters();
+  render();
+
+  // ====== Tip: arrastra JSON al tablero para importar ======================
+  window.addEventListener('dragover', e=>{e.preventDefault();});
+  window.addEventListener('drop', e=>{
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const obj = JSON.parse(reader.result);
+        if(obj.tasks && obj.catalogs){ tasks=obj.tasks; catalogs=obj.catalogs; save(); render(); alert('Importado OK'); }
+        else{ alert('JSON no reconocido.'); }
+      }catch{ alert('JSON inválido.'); }
+    };
+    reader.readAsText(f);
+  });
+
+  // ====== Tip: click en badge para alternar play/pausa =====================
+  tbody.addEventListener('click', (e)=>{
+    const row = e.target.closest('tr');
+    if(!row) return;
+  });
+
+  // ====== Tip: click fuera cierra menú ====================================
+  </script>
+</body>
+</html>
