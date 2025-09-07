@@ -256,7 +256,8 @@ function load(){
   // ====== Cerrar con adjunto + recurrencia ================================
   function closeTask(t){
     if(!t.adjuntos || t.adjuntos.length===0){
-      return alert('Para cerrar necesitas al menos un archivo adjunto.');
+      alert('Para cerrar necesitas al menos un archivo adjunto.');
+      return false;
     }
     if(t.timerStart){ toggleTimer(t); }
     t.estado = 'CERRADO';
@@ -284,6 +285,7 @@ function load(){
       tasks.push(next);
     }
     save(); render();
+    return true;
   }
 
   // ====== Modal de edición ================================================
@@ -459,8 +461,9 @@ function load(){
   function confirmClose(){
     const t = getTask(closingId);
     if(!t){ alert('No hay tarea seleccionada.'); return; }
-    closeTask(t);
-    closeClose();
+    if(closeTask(t)){
+      closeClose();
+    }
   }
 
   // ====== Export ===========================================================
