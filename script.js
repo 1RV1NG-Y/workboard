@@ -6,10 +6,20 @@
   let tasks = [];
   let catalogs = { tipos:["General"], proyectos:["Personal"], objetivos:["General"] };
 
-  function load(){
-    try{ tasks = JSON.parse(localStorage.getItem(LS_KEY)||'[]') }catch{ tasks=[] }
-    try{ catalogs = JSON.parse(localStorage.getItem(LS_CAT)||'null') || catalogs }catch{}
-  }
+function load(){
+  try{
+    tasks = JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+  }catch{ tasks=[] }
+  // convertir cadenas de fecha en números (ms)
+  tasks.forEach(t=>{
+    t.timerStart = t.timerStart ? +new Date(t.timerStart) : null;
+    t.sesiones = (t.sesiones||[]).map(s=>({
+      start:+new Date(s.start),
+      end: s.end? +new Date(s.end): null
+    }));
+  });
+  try{ catalogs = JSON.parse(localStorage.getItem(LS_CAT)||'null') || catalogs }catch{}
+}
   function save(){
     localStorage.setItem(LS_KEY, JSON.stringify(tasks));
     localStorage.setItem(LS_CAT, JSON.stringify(catalogs));
@@ -243,7 +253,7 @@
     if(t.timerStart){
       // Pausar: cierra sesión activa
       t.sesiones = t.sesiones||[];
-      t.sesiones.push({ start: new Date(t.timerStart), end: new Date() });
+      t.sesiones.push({ start: t.timerStart, end: Date.now() });
       t.timerStart = null;
     }else{
       t.timerStart = Date.now();
@@ -467,6 +477,8 @@
   setToday();
   refreshFilters();
   render();
+  // refrescar cada 5 minutos para mostrar tiempo transcurrido
+  setInterval(render, 5*60*1000);
 
   // ====== Tip: arrastra JSON al tablero para importar ======================
   window.addEventListener('dragover', e=>{e.preventDefault();});
