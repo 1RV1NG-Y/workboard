@@ -41,13 +41,13 @@
     tbody tr:hover td{background:#f9fafb}
 
     /* Estado tintes */
-    .row--trabajando td{background:#fff7ed} /* naranja claro */
+    .row--trabajando td{background:#e0f2fe} /* celeste claro */
     .row--rezagado td{background:#fef2f2}
     .row--programado td{background:#eff6ff}
     .row--cerrado td{background:#f0fdf4}
 
     .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:600}
-    .badge.trabajando{background:#ffedd5;color:#9a3412}
+    .badge.trabajando{background:#e0f2fe;color:#075985}
     .badge.rezagado{background:#fee2e2;color:#991b1b}
     .badge.programado{background:#dbeafe;color:#1e40af}
     .badge.empezado{background:#e5e7eb;color:#111827}
@@ -60,7 +60,7 @@
     .menu button:hover{background:#f3f4f6}
 
     .status-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-    .st-trabajando{background:var(--warn)}
+    .st-trabajando{background:#0ea5e9}
     .st-programado{background:var(--primary)}
     .st-rezagado{background:var(--bad)}
     .st-empezado{background:#6b7280}

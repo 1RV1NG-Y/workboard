@@ -41,14 +41,15 @@ function load(){
   // ====== Estado derivado ==================================================
   function deriveState(t){
     if(t.estado === 'CERRADO') return 'CERRADO';
-    const now = Date.now();
     const running = !!t.timerStart;
     if(running) return 'TRABAJANDO';
     const spent = getTotalMs(t);
     if(spent>0) return 'EMPEZADO';
     if(t.fechaCompromiso){
-      const comp = new Date(t.fechaCompromiso);
-      const isPast = dayEnd(new Date()) > comp && (!t.programadoPara || new Date(t.programadoPara) <= dayEnd(new Date()));
+      const today = dayStart(new Date());
+      const comp = dayStart(new Date(t.fechaCompromiso + 'T00:00'));
+      const program = t.programadoPara ? dayStart(new Date(t.programadoPara + 'T00:00')) : null;
+      const isPast = comp < today && (!program || program <= today);
       if(isPast) return 'REZAGADO';
     }
     return 'PROGRAMADO';
@@ -187,7 +188,7 @@ function load(){
   function controlsHtml(t){
     const st = deriveState(t);
     const todayEnd = +dayEnd(new Date());
-    const futureProgram = t.programadoPara && +new Date(t.programadoPara) > todayEnd;
+    const futureProgram = t.programadoPara && +dayStart(new Date(t.programadoPara + 'T00:00')) > todayEnd;
     if(st==='TRABAJANDO'){
       // Pausa + Cerrar
       return `<button class=\"icon-btn pause\" title=\"Pausar\" onclick=\"rowAction('pause','${t.id}',event)\">⏸</button>
@@ -208,7 +209,7 @@ function load(){
     const t = getTask(id); if(!t) return;
     const todayEnd = +dayEnd(new Date());
     if(kind==='play'){
-      if(t.programadoPara && +new Date(t.programadoPara) > todayEnd) return; // bloqueado
+      if(t.programadoPara && +dayStart(new Date(t.programadoPara + 'T00:00')) > todayEnd) return; // bloqueado
       if(!t.timerStart){ t.timerStart = Date.now(); save(); render(); }
       return;
     }
@@ -276,7 +277,7 @@ function load(){
       next.timerStart = null;
       next.adjuntos = [];
       // calcular próxima fecha programado/compromiso
-      const base = t.programadoPara ? new Date(t.programadoPara) : new Date();
+      const base = t.programadoPara ? new Date(t.programadoPara + 'T00:00') : new Date();
       if(t.recurrencia==='sabados'){
         const d = new Date(base);
         d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); // próximo sábado
