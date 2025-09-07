@@ -186,8 +186,6 @@ function load(){
   // ====== Botones por fila (izquierda) =====================================
   function controlsHtml(t){
     const st = deriveState(t);
-    const todayEnd = +dayEnd(new Date());
-    const futureProgram = t.programadoPara && +new Date(t.programadoPara) > todayEnd;
     if(st==='TRABAJANDO'){
       // Pausa + Cerrar
       return `<button class=\"icon-btn pause\" title=\"Pausar\" onclick=\"rowAction('pause','${t.id}',event)\">⏸</button>
@@ -196,19 +194,14 @@ function load(){
     if(st==='CERRADO'){
       return `<button class=\"icon-btn disabled\" title=\"Cerrado\" disabled>✓</button>`;
     }
-    // default: play. Si está programado a futuro, botón deshabilitado (ámbar)
-    if(futureProgram){
-      return `<button class=\"icon-btn disabled\" title=\"Programado a futuro\" disabled>▶</button>`;
-    }
+    // default: play
     return `<button class=\"icon-btn play\" title=\"Iniciar\" onclick=\"rowAction('play','${t.id}',event)\">▶</button>`;
   }
 
   function rowAction(kind, id, ev){
     ev.stopPropagation();
     const t = getTask(id); if(!t) return;
-    const todayEnd = +dayEnd(new Date());
     if(kind==='play'){
-      if(t.programadoPara && +new Date(t.programadoPara) > todayEnd) return; // bloqueado
       if(!t.timerStart){ t.timerStart = Date.now(); save(); render(); }
       return;
     }
