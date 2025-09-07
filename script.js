@@ -110,7 +110,8 @@ function load(){
     const text = q.value.trim().toLowerCase();
     const fp = fProyecto.value, fo = fObjetivo.value, ft = fTipo.value;
 
-    const filtered = tasks.filter(t=>{
+  const filtered = tasks.filter(t=>{
+      if(!t.programadoPara && !t.fechaCompromiso) return false;
       if(fp && t.proyecto!==fp) return false;
       if(fo && t.objetivo!==fo) return false;
       if(ft && t.tipo!==ft) return false;
