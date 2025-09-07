@@ -106,7 +106,7 @@ function load(){
   }
 
   function render(){
-    const day = fFecha.value ? new Date(fFecha.value) : new Date();
+    const day = fFecha.valueAsDate || new Date();
     const text = q.value.trim().toLowerCase();
     const fp = fProyecto.value, fo = fObjetivo.value, ft = fTipo.value;
 
