@@ -39,14 +39,14 @@ function load(){
   }
 
   // ====== Estado derivado ==================================================
-  function deriveState(t){
+  function deriveState(t, refDate=new Date()){
     if(t.estado === 'CERRADO') return 'CERRADO';
     const running = !!t.timerStart;
     if(running) return 'TRABAJANDO';
     const spent = getTotalMs(t);
     if(spent>0) return 'EMPEZADO';
     if(t.fechaCompromiso){
-      const today = dayStart(new Date());
+      const today = dayStart(refDate);
       const comp = dayStart(new Date(t.fechaCompromiso + 'T00:00:00'));
       if(today > comp) return 'REZAGADO';
     }
@@ -106,7 +106,9 @@ function load(){
   }
 
   function render(){
-    const today = new Date();
+    const boardDate = fFecha.value ? new Date(fFecha.value + 'T00:00:00') : new Date();
+    const today = dayStart(new Date());
+    const boardDay = dayStart(boardDate);
     const text = q.value.trim().toLowerCase();
     const fp = fProyecto.value, fo = fObjetivo.value, ft = fTipo.value;
 
@@ -119,7 +121,19 @@ function load(){
         const blob = `${t.titulo} ${t.descripcion||''} ${(t.tags||[]).join(',')}`.toLowerCase();
         if(!blob.includes(text)) return false;
       }
-      return true;
+      const st = deriveState(t, boardDay);
+      const prog = t.programadoPara ? dayStart(new Date(t.programadoPara + 'T00:00:00')) : null;
+      const fin = t.fechaTerminada ? dayStart(new Date(t.fechaTerminada + 'T00:00:00')) : null;
+      if(boardDay < today){
+        return st==='CERRADO' && fin && +fin===+boardDay;
+      }
+      if(boardDay > today){
+        return st!=='CERRADO' && prog && +prog===+boardDay;
+      }
+      if(st==='CERRADO'){
+        return fin && +fin===+boardDay;
+      }
+      return prog && +prog <= +boardDay;
     });
 
     tbody.innerHTML = '';
@@ -130,14 +144,14 @@ function load(){
       .sort((a,b)=>{
         // Orden: rezagado > trabajando > programado > empezado > otros, luego compromiso
         const rank = s=>({REZAGADO:0, TRABAJANDO:1, PROGRAMADO:2, EMPEZADO:3, CERRADO:9})[s] ?? 4;
-        const da = rank(deriveState(a)), db = rank(deriveState(b));
+        const da = rank(deriveState(a, boardDay)), db = rank(deriveState(b, boardDay));
         if(da!==db) return da-db;
         const ca = a.fechaCompromiso? +new Date(a.fechaCompromiso): Number.MAX_SAFE_INTEGER;
         const cb = b.fechaCompromiso? +new Date(b.fechaCompromiso): Number.MAX_SAFE_INTEGER;
         return ca-cb;
       })
       .forEach((t,i)=>{
-        const st = deriveState(t);
+        const st = deriveState(t, boardDay);
         if(st==='PROGRAMADO') kProg++;
         if(st==='TRABAJANDO') kTrab++;
         if(st==='REZAGADO') kRez++;
@@ -145,14 +159,15 @@ function load(){
 
         const tr = document.createElement('tr');
         tr.className = 'row--'+st.toLowerCase();
+        const title = st==='REZAGADO'? t.titulo+'-rezagado' : t.titulo;
         tr.innerHTML = `
-          <td class="control">${controlsHtml(t)}</td>
+          <td class="control">${controlsHtml(t, boardDay)}</td>
           <td class="right">${i+1}</td>
           <td>
             <div style=\"display:flex;align-items:center;gap:8px\">
               <span class=\"status-dot st-${st.toLowerCase()}\"></span>
               <div>
-                <div style=\"font-weight:600\">${escapeHtml(t.titulo)}</div>
+                <div style=\"font-weight:600\">${escapeHtml(title)}</div>
                 <div class=\"muted small\">${escapeHtml(t.proyecto||'—')} · ${escapeHtml(t.objetivo||'—')} · <span class=\"chip\">${escapeHtml(t.tipo||'General')}</span></div>
               </div>
             </div>
@@ -160,7 +175,7 @@ function load(){
           <td><span class=\"badge ${st.toLowerCase()}\">${st}</span></td>
           <td>${t.fechaCompromiso? new Date(t.fechaCompromiso).toLocaleDateString(): '—'}</td>
           <td>${fmtHM(getTotalMs(t))}</td>
-          <td>${fmtHM(getDayMs(t, today))}</td>
+          <td>${fmtHM(getDayMs(t, boardDay))}</td>
           <td>
             <div style=\"position:relative\">
               <button class=\"menu-btn\" onclick=\"openMenu(event, '${t.id}')\">⋮</button>
@@ -184,8 +199,8 @@ function load(){
   function escapeHtml(s){return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 
   // ====== Botones por fila (izquierda) =====================================
-  function controlsHtml(t){
-    const st = deriveState(t);
+  function controlsHtml(t, refDate=new Date()){
+    const st = deriveState(t, refDate);
     if(st==='TRABAJANDO'){
       // Pausa + Cerrar
       return `<button class=\"icon-btn pause\" title=\"Pausar\" onclick=\"rowAction('pause','${t.id}',event)\">⏸</button>
@@ -260,6 +275,7 @@ function load(){
     }
     if(t.timerStart){ toggleTimer(t); }
     t.estado = 'CERRADO';
+    t.fechaTerminada = new Date().toISOString().slice(0,10);
     // recurrencia -> crear siguiente
     if(t.recurrencia && t.recurrencia!=='ninguna'){
       const next = JSON.parse(JSON.stringify(t));
@@ -268,6 +284,7 @@ function load(){
       next.sesiones = [];
       next.timerStart = null;
       next.adjuntos = [];
+      next.fechaTerminada = null;
       // calcular próxima fecha programado/compromiso
       const base = t.programadoPara ? new Date(t.programadoPara) : new Date();
       if(t.recurrencia==='sabados'){
