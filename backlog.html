@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backlog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <button class="burger" id="menuToggle">☰</button>
+    <h2>Menu</h2>
+    <nav>
+      <a href="gestor_personal_tablero_v_1.html">Workboard</a>
+      <a href="backlog.html" class="active">Backlog</a>
+    </nav>
+  </aside>
+  <div class="content">
+    <div class="container">
+      <div class="header">
+        <div class="toolbar">
+          <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Proyecto</th>
+              <th>Objetivo</th>
+              <th>Tipo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva tarea -->
+  <div class="modal-backdrop" id="modalEditBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong id="modalTitle">Nueva tarea</strong>
+        <button class="btn" onclick="closeEdit()">✕</button>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label>Título</label>
+            <input id="mTitulo" type="text"/>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <div class="row">
+              <select id="mTipo"></select>
+              <button class="btn" onclick="addCatalog('tipo')">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Proyecto</label>
+            <div class="row">
+              <select id="mProyecto"></select>
+              <button class="btn" onclick="addCatalog('proyecto')">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Objetivo</label>
+            <div class="row">
+              <select id="mObjetivo"></select>
+              <button class="btn" onclick="addCatalog('objetivo')">＋</button>
+            </div>
+          </div>
+          <div style="grid-column:1/3">
+            <label>Descripción</label>
+            <textarea id="mDescripcion" placeholder="Detalles, pasos, etc."></textarea>
+          </div>
+          <div style="grid-column:1/3">
+            <label>Etiquetas (coma)</label>
+            <input id="mTags" type="text" placeholder="ej. QA, script, docs"/>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <button class="btn" onclick="closeEdit()">Cancelar</button>
+        <button class="btn primary" onclick="saveFromModal()">Guardar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal Programar -->
+  <div class="modal-backdrop" id="modalProgBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong>Programar tarea</strong>
+        <button class="btn" onclick="closeProgramar()">✕</button>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label>Programado para</label>
+            <input id="pProgramado" type="date"/>
+          </div>
+          <div>
+            <label>Fecha compromiso</label>
+            <input id="pCompromiso" type="date"/>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <button class="btn" onclick="closeProgramar()">Cancelar</button>
+        <button class="btn primary" onclick="saveProgramar()">Guardar</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="backlog.js"></script>
+</body>
+</html>
