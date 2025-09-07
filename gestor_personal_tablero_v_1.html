@@ -7,57 +7,62 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="toolbar">
-        <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
-        <button class="btn" id="btnExport">Exportar JSON</button>
-        <input class="input" id="q" placeholder="Buscar… (título/desc/etiquetas)" style="width:260px"/>
-        <select class="select" id="fProyecto"></select>
-        <select class="select" id="fObjetivo"></select>
-        <select class="select" id="fTipo"></select>
-        <input class="input" id="fFecha" type="date"/>
-        <button class="btn neutral" id="btnHoy">Hoy</button>
-        <div class="spacer"></div>
-        <div class="kpis">
-          <span class="dot st-programado"></span><span class="small">Prog:</span><b id="kProg">0</b>
-          <span class="dot st-trabajando" style="margin-left:10px"></span><span class="small">Trab:</span><b id="kTrab">0</b>
-          <span class="dot st-rezagado" style="margin-left:10px"></span><span class="small">Rezag:</span><b id="kRez">0</b>
-          <span class="dot st-cerrado" style="margin-left:10px"></span><span class="small">Cerr:</span><b id="kCer">0</b>
+  <div class="layout">
+    <nav class="sidebar">
+      <a href="#" class="active">Tablero</a>
+    </nav>
+    <div class="main">
+      <div class="container">
+        <div class="header">
+          <div class="toolbar">
+            <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
+            <button class="btn" id="btnExport">Exportar JSON</button>
+            <input class="input" id="q" placeholder="Buscar… (título/desc/etiquetas)" style="width:260px"/>
+            <select class="select" id="fProyecto"></select>
+            <select class="select" id="fObjetivo"></select>
+            <select class="select" id="fTipo"></select>
+            <input class="input" id="fFecha" type="date"/>
+            <button class="btn neutral" id="btnHoy">Hoy</button>
+            <div class="spacer"></div>
+            <div class="kpis">
+              <span class="dot st-programado"></span><span class="small">Prog:</span><b id="kProg">0</b>
+              <span class="dot st-trabajando" style="margin-left:10px"></span><span class="small">Trab:</span><b id="kTrab">0</b>
+              <span class="dot st-rezagado" style="margin-left:10px"></span><span class="small">Rezag:</span><b id="kRez">0</b>
+              <span class="dot st-cerrado" style="margin-left:10px"></span><span class="small">Cerr:</span><b id="kCer">0</b>
+            </div>
+          </div>
         </div>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:44px"></th>
+                <th style="width:36px">#</th>
+                <th>TÍTULO</th>
+                <th style="width:120px">ESTADO</th>
+                <th style="width:130px">H. COMPROMISO</th>
+                <th style="width:110px">T. TOTAL</th>
+                <th style="width:110px">T. HOY</th>
+                <th style="width:120px">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="footer small">Local • v1 (HTML/CSS/JS). Sin backend. Persistencia en localStorage. Adjuntos guardados como DataURL (límite recomendado ≤ 1 MB por archivo).</div>
       </div>
-    </div>
 
-    <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:44px"></th>
-            <th style="width:36px">#</th>
-            <th>TÍTULO</th>
-            <th style="width:120px">ESTADO</th>
-            <th style="width:130px">H. COMPROMISO</th>
-            <th style="width:110px">T. TOTAL</th>
-            <th style="width:110px">T. HOY</th>
-            <th style="width:120px">ACCIONES</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-
-    <div class="footer small">Local • v1 (HTML/CSS/JS). Sin backend. Persistencia en localStorage. Adjuntos guardados como DataURL (límite recomendado ≤ 1 MB por archivo).</div>
-  </div>
-
-  <!-- MODAL NUEVA / EDITAR -->
-  <div class="modal-backdrop" id="modalEditBg">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header>
-        <strong id="modalTitle">Nueva tarea</strong>
-        <button class="btn" onclick="closeEdit()">✕</button>
-      </header>
-      <div class="body">
-        <div class="grid">
+      <!-- MODAL NUEVA / EDITAR -->
+      <div class="modal-backdrop" id="modalEditBg">
+        <div class="modal" role="dialog" aria-modal="true">
+          <header>
+            <strong id="modalTitle">Nueva tarea</strong>
+            <button class="btn" onclick="closeEdit()">✕</button>
+          </header>
+          <div class="body">
+            <div class="grid">
           <div>
             <label>Título</label>
             <input id="mTitulo" type="text"/>
@@ -163,6 +168,8 @@
     <button onclick="actions.playPause()">▶️ Iniciar / Pausar</button>
     <button onclick="actions.programarHoy()">Programar hoy</button>
     <button onclick="actions.cerrar()">✅ Cerrar (requiere adjunto)</button>
+  </div>
+  </div>
   </div>
 
   <script src="script.js"></script>
