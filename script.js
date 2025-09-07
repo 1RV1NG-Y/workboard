@@ -491,3 +491,6 @@
   });
 
   // ====== Tip: click fuera cierra menú ====================================
+  document.getElementById('menuToggle')?.addEventListener('click', ()=>{
+    document.body.classList.toggle('collapsed');
+  });

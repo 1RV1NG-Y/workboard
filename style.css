@@ -13,12 +13,15 @@
       --badge:#111827;   /* header de tabla negro gris */
     }
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;display:flex}
-    .sidebar{width:200px;background:var(--panel);border-right:1px solid var(--line);padding:20px}
-    .sidebar h2{margin-top:0;font-size:18px}
-    .sidebar a{display:block;color:var(--ink);text-decoration:none;margin:8px 0}
-    .sidebar a.active{font-weight:600}
-    .content{flex:1;overflow:auto}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;}
+    .sidebar{width:200px;position:fixed;top:0;bottom:0;left:0;background:#333;color:#fff;padding:20px;transition:transform .3s}
+    .sidebar h2{margin-top:0;font-size:18px;color:#fff}
+    .sidebar a{display:block;color:#fff;text-decoration:none;margin:8px 0;padding:8px;border-radius:4px}
+    .sidebar a:hover,.sidebar a.active{background:#fff;color:#333}
+    .content{margin-left:200px;overflow:auto;transition:margin-left .3s}
+    body.collapsed .sidebar{transform:translateX(-100%)}
+    body.collapsed .content{margin-left:0}
+    .burger{background:#333;border:0;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
     button, input, select, textarea{font:inherit}
     /* Layout */
     .container{max-width:1200px;margin:18px auto;padding:0 16px}
