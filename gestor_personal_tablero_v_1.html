@@ -154,12 +154,14 @@
           <div>
             <label>Adjuntar evidencia (requerido)</label>
             <input type="file" id="cFile"/>
+            <button class="btn" onclick="attachSelectedClose()">Adjuntar</button>
           </div>
         </div>
         <div id="cAdjuntos" class="small" style="margin-top:8px"></div>
       </div>
       <footer>
         <button class="btn" onclick="closeClose()">Cancelar</button>
+        <button class="btn primary" onclick="confirmClose()">Cerrar tarea</button>
       </footer>
     </div>
   </div>

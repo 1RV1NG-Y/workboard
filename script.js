@@ -441,22 +441,27 @@ function load(){
       row.appendChild(del); cAdjuntos.appendChild(row);
     });
   }
-  function handleCloseFile(){
+  function attachSelectedClose(){
     const file = cFile.files[0];
-    if(!file) return;
+    if(!file){ alert('Elige un archivo.'); return; }
     const t = getTask(closingId);
     if(!t){ alert('No hay tarea seleccionada.'); return; }
     const reader = new FileReader();
     reader.onload = ()=>{
       t.adjuntos = t.adjuntos || [];
       t.adjuntos.push({ name:file.name, type:file.type, size:file.size, dataUrl:reader.result });
-      closeTask(t);
+      save();
+      renderCloseAdj();
       cFile.value = '';
-      closeClose();
     };
     reader.readAsDataURL(file);
   }
-  cFile.addEventListener('change', handleCloseFile);
+  function confirmClose(){
+    const t = getTask(closingId);
+    if(!t){ alert('No hay tarea seleccionada.'); return; }
+    closeTask(t);
+    closeClose();
+  }
 
   // ====== Export ===========================================================
   document.getElementById('btnExport').addEventListener('click', ()=>{
