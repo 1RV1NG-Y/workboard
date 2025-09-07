@@ -397,6 +397,20 @@ function load(){
         save(); renderAdjuntos(t); render(); mFile.value='';
       };
       reader.readAsDataURL(file);
+    },
+    attachSelectedClose(){
+      const file = cFile.files[0];
+      if(!file){ alert('Elige un archivo.'); return; }
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const t = getTask(closingId);
+        t.adjuntos = t.adjuntos||[];
+        t.adjuntos.push({ name:file.name, type:file.type, size:file.size, dataUrl:reader.result });
+        save();
+        renderCloseAdj();
+        cFile.value='';
+      };
+      reader.readAsDataURL(file);
     }
   }
 
@@ -457,12 +471,6 @@ function load(){
       const del = document.createElement('button'); del.className='btn'; del.textContent='Quitar'; del.onclick=()=>{ t.adjuntos.splice(idx,1); save(); renderCloseAdj(); };
       row.appendChild(del); cAdjuntos.appendChild(row);
     });
-  }
-  function attachSelectedClose(){
-    const file = cFile.files[0]; if(!file){ alert('Elige un archivo.'); return; }
-    const reader = new FileReader();
-    reader.onload = ()=>{ const t=getTask(closingId); t.adjuntos=t.adjuntos||[]; t.adjuntos.push({name:file.name,type:file.type,size:file.size,dataUrl:reader.result}); save(); renderCloseAdj(); };
-    reader.readAsDataURL(file);
   }
   function confirmClose(){ const t=getTask(closingId); if(!t) return; closeTask(t); closeClose(); }
 
