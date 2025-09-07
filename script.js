@@ -111,6 +111,7 @@ function load(){
     const fp = fProyecto.value, fo = fObjetivo.value, ft = fTipo.value;
 
     const filtered = tasks.filter(t=>{
+      if(!t.programadoPara && !t.fechaCompromiso) return false; // omit tasks sin fecha (backlog)
       if(fp && t.proyecto!==fp) return false;
       if(fo && t.objetivo!==fo) return false;
       if(ft && t.tipo!==ft) return false;
