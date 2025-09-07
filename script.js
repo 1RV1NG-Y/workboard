@@ -31,15 +31,14 @@
   // ====== Estado derivado ==================================================
   function deriveState(t){
     if(t.estado === 'CERRADO') return 'CERRADO';
-    const now = Date.now();
     const running = !!t.timerStart;
     if(running) return 'TRABAJANDO';
     const spent = getTotalMs(t);
     if(spent>0) return 'EMPEZADO';
     if(t.fechaCompromiso){
-      const comp = new Date(t.fechaCompromiso);
-      const isPast = dayEnd(new Date()) > comp && (!t.programadoPara || new Date(t.programadoPara) <= dayEnd(new Date()));
-      if(isPast) return 'REZAGADO';
+      const today = dayStart(new Date());
+      const comp = dayStart(new Date(t.fechaCompromiso + 'T00:00:00'));
+      if(today > comp) return 'REZAGADO';
     }
     return 'PROGRAMADO';
   }
