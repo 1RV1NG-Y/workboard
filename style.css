@@ -13,7 +13,16 @@
       --badge:#111827;   /* header de tabla negro gris */
     }
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;}
+      .sidebar{width:200px;position:fixed;top:0;bottom:0;left:0;background:#333;color:#fff;padding:20px;box-sizing:border-box;transition:width .3s}
+      .sidebar h2{margin-top:0;font-size:18px;color:#fff}
+      .sidebar a{display:block;color:#fff;text-decoration:none;margin:8px 0;padding:8px;border-radius:4px}
+      .sidebar a:hover,.sidebar a.active{background:#fff;color:#333}
+      .content{margin-left:200px;overflow:auto;transition:margin-left .3s}
+      body.collapsed .sidebar{width:60px;padding:10px}
+      body.collapsed .sidebar h2,body.collapsed .sidebar nav{display:none}
+      body.collapsed .content{margin-left:60px}
+      .burger{background:#333;border:0;color:#fff;padding:12px;border-radius:8px;cursor:pointer;font-size:24px;font-weight:bold}
     button, input, select, textarea{font:inherit}
     /* Layout */
     .container{max-width:1200px;margin:18px auto;padding:0 16px}
