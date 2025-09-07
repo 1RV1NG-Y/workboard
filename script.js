@@ -106,7 +106,7 @@ function load(){
   }
 
   function render(){
-    const day = fFecha.value ? new Date(fFecha.value) : new Date();
+    const today = new Date();
     const text = q.value.trim().toLowerCase();
     const fp = fProyecto.value, fo = fObjetivo.value, ft = fTipo.value;
 
@@ -160,7 +160,7 @@ function load(){
           <td><span class=\"badge ${st.toLowerCase()}\">${st}</span></td>
           <td>${t.fechaCompromiso? new Date(t.fechaCompromiso).toLocaleDateString(): '—'}</td>
           <td>${fmtHM(getTotalMs(t))}</td>
-          <td>${fmtHM(getDayMs(t, day))}</td>
+          <td>${fmtHM(getDayMs(t, today))}</td>
           <td>
             <div style=\"position:relative\">
               <button class=\"menu-btn\" onclick=\"openMenu(event, '${t.id}')\">⋮</button>
