@@ -441,25 +441,22 @@ function load(){
       row.appendChild(del); cAdjuntos.appendChild(row);
     });
   }
-  function attachSelectedClose(){
+  function handleCloseFile(){
     const file = cFile.files[0];
-    if(!file){ alert('Elige un archivo.'); return; }
-
+    if(!file) return;
     const t = getTask(closingId);
     if(!t){ alert('No hay tarea seleccionada.'); return; }
-
     const reader = new FileReader();
     reader.onload = ()=>{
       t.adjuntos = t.adjuntos || [];
       t.adjuntos.push({ name:file.name, type:file.type, size:file.size, dataUrl:reader.result });
-      save();
-      renderCloseAdj();
-      render();
+      closeTask(t);
       cFile.value = '';
+      closeClose();
     };
     reader.readAsDataURL(file);
   }
-  function confirmClose(){ const t=getTask(closingId); if(!t) return; closeTask(t); closeClose(); }
+  cFile.addEventListener('change', handleCloseFile);
 
   // ====== Export ===========================================================
   document.getElementById('btnExport').addEventListener('click', ()=>{
