@@ -271,7 +271,8 @@ function load(){
   // ====== Cerrar con adjunto + recurrencia ================================
   function closeTask(t){
     if(!t.adjuntos || t.adjuntos.length===0){
-      return alert('Para cerrar necesitas al menos un archivo adjunto.');
+      alert('Para cerrar necesitas al menos un archivo adjunto.');
+      return false;
     }
     if(t.timerStart){ toggleTimer(t); }
     t.estado = 'CERRADO';
@@ -301,6 +302,7 @@ function load(){
       tasks.push(next);
     }
     save(); render();
+    return true;
   }
 
   // ====== Modal de edición ================================================
@@ -459,12 +461,27 @@ function load(){
     });
   }
   function attachSelectedClose(){
-    const file = cFile.files[0]; if(!file){ alert('Elige un archivo.'); return; }
+    const file = cFile.files[0];
+    if(!file){ alert('Elige un archivo.'); return; }
+    const t = getTask(closingId);
+    if(!t){ alert('No hay tarea seleccionada.'); return; }
     const reader = new FileReader();
-    reader.onload = ()=>{ const t=getTask(closingId); t.adjuntos=t.adjuntos||[]; t.adjuntos.push({name:file.name,type:file.type,size:file.size,dataUrl:reader.result}); save(); renderCloseAdj(); };
+    reader.onload = ()=>{
+      t.adjuntos = t.adjuntos || [];
+      t.adjuntos.push({ name:file.name, type:file.type, size:file.size, dataUrl:reader.result });
+      save();
+      renderCloseAdj();
+      cFile.value = '';
+    };
     reader.readAsDataURL(file);
   }
-  function confirmClose(){ const t=getTask(closingId); if(!t) return; closeTask(t); closeClose(); }
+  function confirmClose(){
+    const t = getTask(closingId);
+    if(!t){ alert('No hay tarea seleccionada.'); return; }
+    if(closeTask(t)){
+      closeClose();
+    }
+  }
 
   // ====== Export ===========================================================
   document.getElementById('btnExport').addEventListener('click', ()=>{
