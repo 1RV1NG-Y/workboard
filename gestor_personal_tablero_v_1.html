@@ -6,8 +6,15 @@
   <title>Tablero Personal</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
+  <body>
+    <aside class="sidebar">
+      <h2>Menu</h2>
+      <nav>
+        <a href="#" class="active">Workboard</a>
+      </nav>
+    </aside>
+    <div class="content">
+    <div class="container">
     <div class="header">
       <div class="toolbar">
         <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
@@ -158,13 +165,14 @@
   </div>
 
   <!-- MENU flotante plantilla -->
-  <div class="menu" id="rowMenu">
-    <button onclick="actions.detalles()">Ver / Editar…</button>
-    <button onclick="actions.playPause()">▶️ Iniciar / Pausar</button>
-    <button onclick="actions.programarHoy()">Programar hoy</button>
-    <button onclick="actions.cerrar()">✅ Cerrar (requiere adjunto)</button>
-  </div>
+    <div class="menu" id="rowMenu">
+      <button onclick="actions.detalles()">Ver / Editar…</button>
+      <button onclick="actions.playPause()">▶️ Iniciar / Pausar</button>
+      <button onclick="actions.programarHoy()">Programar hoy</button>
+      <button onclick="actions.cerrar()">✅ Cerrar (requiere adjunto)</button>
+    </div>
+    </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+    <script src="script.js"></script>
+  </body>
+  </html>

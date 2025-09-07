@@ -13,7 +13,12 @@
       --badge:#111827;   /* header de tabla negro gris */
     }
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;display:flex}
+    .sidebar{width:200px;background:var(--panel);border-right:1px solid var(--line);padding:20px}
+    .sidebar h2{margin-top:0;font-size:18px}
+    .sidebar a{display:block;color:var(--ink);text-decoration:none;margin:8px 0}
+    .sidebar a.active{font-weight:600}
+    .content{flex:1;overflow:auto}
     button, input, select, textarea{font:inherit}
     /* Layout */
     .container{max-width:1200px;margin:18px auto;padding:0 16px}
