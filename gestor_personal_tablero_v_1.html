@@ -409,21 +409,21 @@
           <td class="control">${controlsHtml(t)}</td>
           <td class="right">${i+1}</td>
           <td>
-            <div style=\"display:flex;align-items:center;gap:8px\">
-              <span class=\"status-dot st-${st.toLowerCase()}\"></span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="status-dot st-${st.toLowerCase()}"></span>
               <div>
-                <div style=\"font-weight:600\">${escapeHtml(t.titulo)}</div>
-                <div class=\"muted small\">${escapeHtml(t.proyecto||'—')} · ${escapeHtml(t.objetivo||'—')} · <span class=\"chip\">${escapeHtml(t.tipo||'General')}</span></div>
+                <div style="font-weight:600">${escapeHtml(t.titulo)}</div>
+                <div class="muted small">${escapeHtml(t.proyecto||'—')} · ${escapeHtml(t.objetivo||'—')} · <span class="chip">${escapeHtml(t.tipo||'General')}</span></div>
               </div>
             </div>
           </td>
-          <td><span class=\"badge ${st.toLowerCase()}\">${st}</span></td>
+          <td><span class="badge ${st.toLowerCase()}">${st}</span></td>
           <td>${t.fechaCompromiso? new Date(t.fechaCompromiso).toLocaleDateString(): '—'}</td>
           <td>${fmtHM(getTotalMs(t))}</td>
           <td>${fmtHM(getDayMs(t, day))}</td>
           <td>
-            <div style=\"position:relative\">
-              <button class=\"menu-btn\" onclick=\"openMenu(event, '${t.id}')\">⋮</button>
+            <div style="position:relative">
+              <button class="menu-btn" onclick="openMenu(event, '${t.id}')">⋮</button>
             </div>
           </td>
         `;
@@ -450,17 +450,17 @@
     const futureProgram = t.programadoPara && +new Date(t.programadoPara) > todayEnd;
     if(st==='TRABAJANDO'){
       // Pausa + Cerrar
-      return `<button class=\"icon-btn pause\" title=\"Pausar\" onclick=\"rowAction('pause','${t.id}',event)\">⏸</button>
-              <button class=\"icon-btn check\" title=\"Cerrar\" onclick=\"rowAction('close','${t.id}',event)\">✓</button>`;
+      return `<button class="icon-btn pause" title="Pausar" onclick="rowAction('pause','${t.id}',event)">⏸</button>
+              <button class="icon-btn check" title="Cerrar" onclick="rowAction('close','${t.id}',event)">✓</button>`;
     }
     if(st==='CERRADO'){
-      return `<button class=\"icon-btn disabled\" title=\"Cerrado\" disabled>✓</button>`;
+      return `<button class="icon-btn disabled" title="Cerrado" disabled>✓</button>`;
     }
     // default: play. Si está programado a futuro, botón deshabilitado (ámbar)
     if(futureProgram){
-      return `<button class=\"icon-btn disabled\" title=\"Programado a futuro\" disabled>▶</button>`;
+      return `<button class="icon-btn disabled" title="Programado a futuro" disabled>▶</button>`;
     }
-    return `<button class=\"icon-btn play\" title=\"Iniciar\" onclick=\"rowAction('play','${t.id}',event)\">▶</button>`;
+    return `<button class="icon-btn play" title="Iniciar" onclick="rowAction('play','${t.id}',event)">▶</button>`;
   }
 
   function rowAction(kind, id, ev){
