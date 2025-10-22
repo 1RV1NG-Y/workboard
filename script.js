@@ -33,6 +33,12 @@ function load(){
     const m = Math.floor(ms/60000), h = Math.floor(m/60), mm = (m%60).toString().padStart(2,'0');
     return `${h.toString().padStart(2,'0')}:${mm}`
   }
+  const localDateISO = (d=new Date())=>{
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
   const overlapMs = (aStart, aEnd, bStart, bEnd)=>{
     const s = Math.max(aStart, bStart), e = Math.min(aEnd, bEnd);
     return Math.max(0, e - s);
@@ -247,7 +253,7 @@ function load(){
   const actions = {
     detalles(){ openEdit(currentMenuTaskId); },
     playPause(){ const t = getTask(currentMenuTaskId); if(!t) return; toggleTimer(t); save(); render(); },
-    programarHoy(){ const t=getTask(currentMenuTaskId); if(!t) return; t.programadoPara = new Date().toISOString().slice(0,10); save(); render(); },
+    programarHoy(){ const t=getTask(currentMenuTaskId); if(!t) return; t.programadoPara = localDateISO(); save(); render(); },
     cerrar(){ const t=getTask(currentMenuTaskId); if(!t) return; openClose(t.id); },
     eliminar(){ if(!editingId) return; const idx = tasks.findIndex(x=>x.id===editingId); if(idx>=0){ tasks.splice(idx,1); save(); closeEdit(); render(); } },
     guardar(){ saveFromModal(); }
@@ -275,7 +281,7 @@ function load(){
     }
     if(t.timerStart){ toggleTimer(t); }
     t.estado = 'CERRADO';
-    t.fechaTerminada = new Date().toISOString().slice(0,10);
+    t.fechaTerminada = localDateISO();
     // recurrencia -> crear siguiente
     if(t.recurrencia && t.recurrencia!=='ninguna'){
       const next = JSON.parse(JSON.stringify(t));
@@ -290,12 +296,11 @@ function load(){
       if(t.recurrencia==='sabados'){
         const d = new Date(base);
         d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); // próximo sábado
-        next.programadoPara = d.toISOString().slice(0,10);
+        next.programadoPara = localDateISO(d);
         if(t.fechaCompromiso) next.fechaCompromiso = next.programadoPara;
       }else if(t.recurrencia==='fin_mes'){
-        const d = new Date(base.getFullYear(), base.getMonth()+1, 0); // fin del mes actual
         const nextMonthEnd = new Date(base.getFullYear(), base.getMonth()+2, 0);
-        next.programadoPara = nextMonthEnd.toISOString().slice(0,10);
+        next.programadoPara = localDateISO(nextMonthEnd);
         if(t.fechaCompromiso) next.fechaCompromiso = next.programadoPara;
       }
       tasks.push(next);
