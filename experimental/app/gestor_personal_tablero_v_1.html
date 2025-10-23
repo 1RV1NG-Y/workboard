@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tablero Personal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo">WB</div>
+        <div class="sidebar__meta">
+          <span class="sidebar__title">Workboard</span>
+          <span class="sidebar__subtitle">Operativa personal</span>
+        </div>
+        <button class="burger" id="menuToggle" aria-label="Alternar menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <nav class="sidebar__nav" aria-label="Navegación principal">
+        <a href="gestor_personal_tablero_v_1.html" class="active">
+          <span class="sidebar__icon">📊</span>
+          <span class="sidebar__label">Workboard</span>
+        </a>
+        <a href="backlog.html">
+          <span class="sidebar__icon">🗃️</span>
+          <span class="sidebar__label">Backlog</span>
+        </a>
+      </nav>
+      <footer class="sidebar__footer">
+        <div class="sidebar__badge">Experimental build</div>
+        <small>Persistencia local. Sin servicios externos.</small>
+      </footer>
+    </aside>
+
+    <main class="content" role="main">
+      <div class="container">
+        <section class="card surface tools-card">
+          <div class="card__header">
+            <div class="toolbar">
+              <div class="toolbar__stack">
+                <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
+                <button class="btn" id="btnExport">Exportar JSON</button>
+              </div>
+              <div class="toolbar__stack toolbar__stack--filters">
+                <input class="input" id="q" placeholder="Buscar… (título/desc/etiquetas)" />
+                <select class="select" id="fProyecto"></select>
+                <select class="select" id="fObjetivo"></select>
+                <select class="select" id="fTipo"></select>
+                <input class="input" id="fFecha" type="date"/>
+                <button class="btn neutral" id="btnHoy">Hoy</button>
+              </div>
+              <div class="spacer"></div>
+              <div class="kpis" aria-label="Indicadores de estado">
+                <span class="dot st-programado" aria-hidden="true"></span><span class="small">Prog:</span><b id="kProg">0</b>
+                <span class="dot st-trabajando" aria-hidden="true"></span><span class="small">Trab:</span><b id="kTrab">0</b>
+                <span class="dot st-rezagado" aria-hidden="true"></span><span class="small">Rezag:</span><b id="kRez">0</b>
+                <span class="dot st-cerrado" aria-hidden="true"></span><span class="small">Cerr:</span><b id="kCer">0</b>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card table-card">
+          <table>
+            <colgroup>
+              <col class="col-control">
+              <col class="col-index">
+              <col class="col-title">
+              <col class="col-status">
+              <col class="col-compromiso">
+              <col class="col-total">
+              <col class="col-hoy">
+              <col class="col-actions">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col" class="control-head"><span class="sr-only">Controles</span><span aria-hidden="true" class="thead-icon">⏯</span></th>
+                <th scope="col" class="index-head">#</th>
+                <th>Título</th>
+                <th style="width:120px">Estado</th>
+                <th style="width:130px">H. Compromiso</th>
+                <th style="width:110px">T. Total</th>
+                <th style="width:110px">T. Hoy</th>
+                <th style="width:120px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </section>
+
+        <footer class="footer small">
+          Local • v1 (HTML/CSS/JS). Persistencia en localStorage. Adjuntos guardados como DataURL (≤ 1 MB recomendado).
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL NUEVA / EDITAR -->
+  <div class="modal-backdrop" id="modalEditBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong id="modalTitle">Nueva tarea</strong>
+        <button class="btn ghost" onclick="closeEdit()" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label>Título</label>
+            <input id="mTitulo" type="text"/>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <div class="row">
+              <select id="mTipo"></select>
+              <button class="btn ghost" onclick="ui.addCatalog('tipo')" aria-label="Añadir tipo">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Proyecto</label>
+            <div class="row">
+              <select id="mProyecto"></select>
+              <button class="btn ghost" onclick="ui.addCatalog('proyecto')" aria-label="Añadir proyecto">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Objetivo</label>
+            <div class="row">
+              <select id="mObjetivo"></select>
+              <button class="btn ghost" onclick="ui.addCatalog('objetivo')" aria-label="Añadir objetivo">＋</button>
+            </div>
+          </div>
+          <div style="grid-column:1/3">
+            <label>Descripción</label>
+            <textarea id="mDescripcion" placeholder="Detalles, pasos, etc."></textarea>
+          </div>
+          <div>
+            <label>Programado para</label>
+            <input id="mProgramado" type="date"/>
+          </div>
+          <div>
+            <label>Fecha compromiso</label>
+            <input id="mCompromiso" type="date"/>
+          </div>
+          <div>
+            <label>Etiquetas (coma)</label>
+            <input id="mTags" type="text" placeholder="ej. QA, script, docs"/>
+          </div>
+          <div>
+            <label>Recurrencia</label>
+            <select id="mRecurrencia">
+              <option value="ninguna">Ninguna</option>
+              <option value="sabados">Todos los sábados</option>
+              <option value="fin_mes">Fin de mes</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="divider"/>
+
+        <div>
+          <div class="row row--between">
+            <div>
+              <label>Adjuntar evidencia (requerido para cerrar)</label>
+              <input type="file" id="mFile"/>
+              <button class="btn ghost" onclick="ui.attachSelected()">Adjuntar</button>
+            </div>
+            <div class="muted small">Tamaño aconsejado ≤ 1 MB por archivo</div>
+          </div>
+          <div id="mAdjuntos" class="small" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <footer>
+        <button class="btn danger" id="btnEliminar" onclick="actions.eliminar()" style="display:none">Eliminar</button>
+        <div class="spacer"></div>
+        <button class="btn ghost" onclick="closeEdit()">Cancelar</button>
+        <button class="btn primary" onclick="actions.guardar()">Guardar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MODAL CERRAR -->
+  <div class="modal-backdrop" id="modalCloseBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong>Cerrar tarea</strong>
+        <button class="btn ghost" onclick="closeClose()" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="body">
+        <div id="cInfo" class="small muted" style="margin-bottom:8px"></div>
+        <div class="row row--between">
+          <div>
+            <label>Adjuntar evidencia (requerido)</label>
+            <input type="file" id="cFile"/>
+            <button class="btn ghost" onclick="attachSelectedClose()">Adjuntar</button>
+          </div>
+        </div>
+        <div id="cAdjuntos" class="small" style="margin-top:8px"></div>
+      </div>
+      <footer>
+        <button class="btn ghost" onclick="closeClose()">Cancelar</button>
+        <button class="btn primary" onclick="confirmClose()">Cerrar tarea</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MENU flotante plantilla -->
+  <div class="menu" id="rowMenu">
+    <button onclick="actions.detalles()">Ver / Editar…</button>
+    <button onclick="actions.playPause()">▶️ Iniciar / Pausar</button>
+    <button onclick="actions.programarHoy()">Programar hoy</button>
+    <button onclick="actions.cerrar()">✅ Cerrar (requiere adjunto)</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

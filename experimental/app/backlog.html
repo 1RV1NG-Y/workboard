@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backlog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo">WB</div>
+        <div class="sidebar__meta">
+          <span class="sidebar__title">Workboard</span>
+          <span class="sidebar__subtitle">Operativa personal</span>
+        </div>
+        <button class="burger" id="menuToggle" aria-label="Alternar menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <nav class="sidebar__nav" aria-label="Navegación principal">
+        <a href="gestor_personal_tablero_v_1.html">
+          <span class="sidebar__icon">📊</span>
+          <span class="sidebar__label">Workboard</span>
+        </a>
+        <a href="backlog.html" class="active">
+          <span class="sidebar__icon">🗃️</span>
+          <span class="sidebar__label">Backlog</span>
+        </a>
+      </nav>
+      <footer class="sidebar__footer">
+        <div class="sidebar__badge">Experimental build</div>
+        <small>Gestiona tu backlog sin salir del escritorio.</small>
+      </footer>
+    </aside>
+
+    <main class="content" role="main">
+      <div class="container">
+        <section class="card surface tools-card">
+          <div class="card__header">
+            <div class="toolbar">
+              <button class="btn primary" id="btnNueva">➕ Nueva tarea</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Proyecto</th>
+                <th>Objetivo</th>
+                <th>Tipo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Nueva tarea -->
+  <div class="modal-backdrop" id="modalEditBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong id="modalTitle">Nueva tarea</strong>
+        <button class="btn ghost" onclick="closeEdit()" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label>Título</label>
+            <input id="mTitulo" type="text"/>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <div class="row">
+              <select id="mTipo"></select>
+              <button class="btn ghost" onclick="addCatalog('tipo')" aria-label="Añadir tipo">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Proyecto</label>
+            <div class="row">
+              <select id="mProyecto"></select>
+              <button class="btn ghost" onclick="addCatalog('proyecto')" aria-label="Añadir proyecto">＋</button>
+            </div>
+          </div>
+          <div>
+            <label>Objetivo</label>
+            <div class="row">
+              <select id="mObjetivo"></select>
+              <button class="btn ghost" onclick="addCatalog('objetivo')" aria-label="Añadir objetivo">＋</button>
+            </div>
+          </div>
+          <div style="grid-column:1/3">
+            <label>Descripción</label>
+            <textarea id="mDescripcion" placeholder="Detalles, pasos, etc."></textarea>
+          </div>
+          <div style="grid-column:1/3">
+            <label>Etiquetas (coma)</label>
+            <input id="mTags" type="text" placeholder="ej. QA, script, docs"/>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <button class="btn ghost" onclick="closeEdit()">Cancelar</button>
+        <button class="btn primary" onclick="saveFromModal()">Guardar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal Programar -->
+  <div class="modal-backdrop" id="modalProgBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <strong>Programar tarea</strong>
+        <button class="btn ghost" onclick="closeProgramar()" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label>Programado para</label>
+            <input id="pProgramado" type="date"/>
+          </div>
+          <div>
+            <label>Fecha compromiso</label>
+            <input id="pCompromiso" type="date"/>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <button class="btn ghost" onclick="closeProgramar()">Cancelar</button>
+        <button class="btn primary" onclick="saveProgramar()">Guardar</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="backlog.js"></script>
+</body>
+</html>

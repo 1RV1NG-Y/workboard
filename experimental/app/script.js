@@ -167,14 +167,13 @@ function load(){
         tr.className = 'row--'+st.toLowerCase();
         const title = st==='REZAGADO'? t.titulo+'-rezagado' : t.titulo;
         tr.innerHTML = `
-          <td class="control">${controlsHtml(t, boardDay)}</td>
-          <td class="right">${i+1}</td>
+          <td class="control-cell">${controlsHtml(t, boardDay)}</td>
+          <td class="right index-cell">${i+1}</td>
           <td>
-            <div style=\"display:flex;align-items:center;gap:8px\">
-              <span class=\"status-dot st-${st.toLowerCase()}\"></span>
-              <div>
-                <div style=\"font-weight:600\">${escapeHtml(title)}</div>
-                <div class=\"muted small\">${escapeHtml(t.proyecto||'—')} · ${escapeHtml(t.objetivo||'—')} · <span class=\"chip\">${escapeHtml(t.tipo||'General')}</span></div>
+            <div class=\"task-cell\">
+              <div class=\"task-meta\">
+                <div class=\"task-title\">${escapeHtml(title)}</div>
+                <div class=\"task-sub muted small\">${escapeHtml(t.proyecto||'—')} · ${escapeHtml(t.objetivo||'—')} · <span class=\"chip\">${escapeHtml(t.tipo||'General')}</span></div>
               </div>
             </div>
           </td>
